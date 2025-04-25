@@ -58,10 +58,12 @@ function Login() {
         };
       
         const info = decodeJWT(token);
-        localStorage.setItem('userId', info.sub); // ✅ Guardas la ID del usuario
-      
-        // Si necesitas más datos del usuario, también los puedes guardar
-        localStorage.setItem('user', JSON.stringify(data));
+        localStorage.setItem('userId', info.sub);
+        localStorage.setItem('user', JSON.stringify({
+          id: info.sub,
+          user_name: form.usuario, // acá se guarda el nombre que el usuario escribió
+        }));
+        
       
         navigate('/dashboard');
       } 
