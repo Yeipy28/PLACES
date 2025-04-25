@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import backgroundImage from "../assets/mi-fondo.jpg"; // Asegúrate de que la ruta sea correcta
+import backgroundImage from "../assets/mi-fondo.jpg";
 
 function DashboardGeneral() {
   const [user, setUser] = useState(null);
@@ -18,14 +18,12 @@ function DashboardGeneral() {
       return;
     }
 
-    // Obtener datos del usuario
     const userData = JSON.parse(storedUser);
     setUser(userData);
 
-    // Obtener las tiendas (places) del backend
     const fetchPlaces = async () => {
       try {
-        const response = await fetch("http://3.148.27.206/api/places", {
+        const response = await fetch("http://3.148.27.206/api/places/my-places", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -38,7 +36,7 @@ function DashboardGeneral() {
         }
 
         const data = await response.json();
-        setPlaces(data); // Guardamos los lugares en el estado
+        setPlaces(data);
       } catch (error) {
         setError(error.message);
       } finally {
@@ -64,12 +62,9 @@ function DashboardGeneral() {
         backgroundPosition: "center",
       }}
     >
-      {/* Overlay para contraste */}
       <div className="absolute inset-0 bg-black opacity-40 z-10"></div>
 
-      {/* Contenido principal */}
       <div className="relative z-20 p-6 max-w-7xl mx-auto">
-        {/* Encabezado */}
         <div className="bg-green-600 rounded-lg text-white px-6 py-5 flex justify-between items-center shadow-lg mb-8">
           <div>
             <h1 className="text-3xl font-bold">¡Hola, {user?.user_name} 👋!</h1>
@@ -83,7 +78,6 @@ function DashboardGeneral() {
           </button>
         </div>
 
-        {/* Tiendas */}
         {loading ? (
           <p className="text-center text-white text-lg">Cargando tiendas...</p>
         ) : error ? (
@@ -97,18 +91,21 @@ function DashboardGeneral() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
               {places.length > 0 ? (
-                places.map((place, index) => (
+                places.map((item, index) => (
                   <div
                     key={index}
-                    onClick={() => navigate(`/tiendas/${place.id}`)}
+                    onClick={() => navigate(`/tiendas/${item.place.id}`)}
                     className="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition-all p-5 border border-gray-200"
                   >
-                    <h3 className="text-lg font-bold text-green-700">{place.name}</h3>
+                    <h3 className="text-lg font-bold text-green-700">{item.place.name}</h3>
                     <p className="text-sm text-gray-600 mt-2">
-                      {place.description || "Sin descripción"}
+                      Dirección: {item.place.address}
                     </p>
-                    <p className="text-sm mt-3 text-gray-800 font-semibold">
-                      Rol: {place.owner_id === user.id ? "Dueño" : "Trabajador"}
+                    <p className="text-sm text-gray-800 mt-2 font-semibold">
+                      Rol: {item.role === "PLACE_OWNER" ? "Dueño" : "Trabajador"}
+                    </p>
+                    <p className="text-xs mt-1 text-gray-500 italic">
+                      Estado: {item.is_enabled ? "Habilitado" : "Deshabilitado"}
                     </p>
                   </div>
                 ))
