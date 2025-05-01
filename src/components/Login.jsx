@@ -61,8 +61,10 @@ function Login() {
         localStorage.setItem('userId', info.sub);
         localStorage.setItem('user', JSON.stringify({
           id: info.sub,
-          user_name: form.usuario, // acá se guarda el nombre que el usuario escribió
+          user_name: form.usuario,
+          role: info.role,
         }));
+        
         
       
         navigate('/dashboard');

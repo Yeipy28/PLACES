@@ -54,6 +54,34 @@ function DashboardGeneral() {
     navigate("/");
   };
 
+  const toggleEnablePlace = async (placeId, currentStatus) => {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch(`http://3.148.27.206/api/places/${placeId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          is_enabled: !currentStatus,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Error al actualizar el estado de la tienda");
+      }
+
+      setPlaces((prevPlaces) =>
+        prevPlaces.map((item) =>
+          item.place.id === placeId ? { ...item, is_enabled: !currentStatus } : item
+        )
+      );
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
+
   return (
     <div
       className="min-h-screen bg-cover bg-center relative"
@@ -82,9 +110,23 @@ function DashboardGeneral() {
           </button>
         </div>
 
+        {/* Botón para agregar nuevo lugar/usuario */}
+        {user?.role === "aggregator" && (
+          <div className="text-center mb-8">
+            <button
+              onClick={() => navigate("/Registro")}
+              className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all"
+            >
+              Crear nuevo lugar y usuario
+            </button>
+          </div>
+        )}
+
         {/* Título central */}
-        <div className="text-center mb-10 ">
-          <h2 className="text-3xl font-bold text-green-50 drop-shadow-lg">SELECIONA EL PLACE A TRABAJAR</h2>
+        <div className="text-center mb-10">
+          <h2 className="text-3xl font-bold text-green-50 drop-shadow-lg">
+            SELECCIONA EL PLACE A TRABAJAR
+          </h2>
         </div>
 
         {/* Tiendas */}
@@ -95,45 +137,64 @@ function DashboardGeneral() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {places.length > 0 ? (
-              [...Array(8)].flatMap((_, i) =>
               places.map((item, index) => {
+                
                 const isDisabled = !item.is_enabled;
+                const isAggregator = user?.role === "aggregator";
 
                 return (
-                  <div
-                    key={index}
-                    onClick={() => {
-                      if (!isDisabled) {
-                        navigate(`/tiendas/${item.place.id}`);
-                      }
-                    }}
-                    className={`rounded-xl p-5 border transition-all shadow ${
-                      isDisabled
-                        ? "bg-gray-200 text-gray-500 cursor-not-allowed opacity-70"
-                        : "bg-white hover:shadow-lg cursor-pointer"
-                    }`}
-                  >
-                    <h3 className="text-xl font-bold text-green-700 mb-2">{item.place.name}</h3>
-                    <p className="text-sm mb-1">
-                      Dirección: <span className="font-medium">{item.place.address}</span>
-                    </p>
-                    <p className="text-sm mb-1">
-                      Rol: <span className="font-semibold">{item.role === "PLACE_OWNER" ? "Dueño" : "Trabajador"}</span>
-                    </p>
-                    <p
-                      className={`text-sm font-semibold mt-2 ${
-                        item.is_enabled ? "text-green-600" : "text-red-600"
+                  <div key={index} className="relative">
+                    {/* Tarjeta */}
+                    <div
+                      className={`rounded-xl p-5 pb-20 border transition-all shadow ${
+                        isDisabled ? "bg-white opacity-50" : "bg-white hover:shadow-lg"
+                      } ${
+                        isDisabled && !isAggregator ? "cursor-not-allowed" : "cursor-pointer"
                       }`}
+                      onClick={() => {
+                        if (!isDisabled || isAggregator) {
+                          navigate(`/tiendas/${item.place.id}`);
+                        }
+                      }}
                     >
-                      {item.is_enabled ? "Habilitado" : "Deshabilitado"}
-                    </p>
-                    
+                      <h3 className="text-xl font-bold text-green-700 mb-2">{item.place.name}</h3>
+                      <p className="text-sm mb-1">
+                        Dirección: <span className="font-medium">{item.place.address}</span>
+                      </p>
+                      <p className="text-sm mb-1">
+                        Rol: <span className="font-semibold">
+                          {isAggregator ? "Administrador" : item.role === "PLACE_OWNER" ? "Dueño" : "Trabajador"}
+                        </span>
+                      </p>
+                      <p className={`text-sm font-semibold mt-2 ${
+                        item.is_enabled ? "text-green-600" : "text-red-600"
+                      }`}>
+                        {item.is_enabled ? "Habilitado" : "Deshabilitado"}
+                      </p>
+                    </div>
+
+                    {/* Botón encima de la tarjeta */}
+                    {isAggregator && (
+                      <div className="absolute bottom-4 left-4 right-4">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation(); // evita abrir la tienda
+                            toggleEnablePlace(item.place.id, item.is_enabled);
+                          }}
+                          className={`w-full py-2 px-4 rounded-lg font-semibold text-white transition ${
+                            item.is_enabled ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"
+                          }`}
+                        >
+                          {item.is_enabled ? "Deshabilitar" : "Habilitar"}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 );
-
               })
-            )
-            ) : (
+            ) 
+            
+            : (
               <p className="text-center text-white text-lg col-span-full">
                 No tienes lugares registrados.
               </p>

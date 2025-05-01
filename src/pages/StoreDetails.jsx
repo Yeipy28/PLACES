@@ -9,9 +9,12 @@ function StoreDetails() {
 
       {/* Aquí irán secciones como facturación, paquetes, etc. */}
       <div className="space-y-4">
-        <div className="p-4 bg-white rounded shadow">📄 Facturación</div>
-        <div className="p-4 bg-white rounded shadow">📦 Paquetes próximos</div>
-        <div className="p-4 bg-white rounded shadow">🧾 Historial de ventas</div>
+        <div className="p-4 bg-white rounded shadow">📄 mi inventario</div>
+        <div className="p-4 bg-white rounded shadow">📦 facturacion</div>
+        <div className="p-4 bg-white rounded shadow">🧾 mi perfil</div>
+        <div className="p-4 bg-white rounded shadow">🧾 Paquetes proximos</div>
+        <div className="p-4 bg-white rounded shadow">🧾 escanear paquete</div>
+
       </div>
     </div>
   );
