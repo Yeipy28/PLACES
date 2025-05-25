@@ -22,9 +22,9 @@ function Login() {
     }
 
     setLoading(true);
-
+const API_URL = import.meta.env.VITE_API_URL;
     try {
-      const response = await fetch('http://3.148.27.206/api/places/login', {
+const response = await fetch(`${API_URL}/places/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
